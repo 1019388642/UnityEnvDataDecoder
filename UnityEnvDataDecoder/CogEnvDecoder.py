@@ -14,10 +14,10 @@ class CogEnvDecoder:
         if train:
             engine_configuration_channel = EngineConfigurationChannel()
             engine_configuration_channel.set_configuration_parameters(width=100, height=100, time_scale=100)
-            unity_env = UnityEnvironment("1.x86_64", worker_id=2)
+            unity_env = UnityEnvironment("RealGame.exe", worker_id=2)
             self._env = UnityToGymWrapper(unity_env)
         else:
-            unity_env = UnityEnvironment("1.x86_64", worker_id=1)
+            unity_env = UnityEnvironment("RealGame.exe", worker_id=1)
             self._env = UnityToGymWrapper(unity_env)
 
         self._size = size
