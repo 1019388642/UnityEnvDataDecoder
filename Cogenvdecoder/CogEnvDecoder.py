@@ -45,7 +45,17 @@ class CogEnvDecoder:
 
     def reset(self):
         obs = self._env.reset()
-        return self._get_obs(obs)
+        img = self._GetImg(obs)
+        self_pos = self._GetSelfPos(obs) #Blue one Position
+        enemy_pos = self._EnemyPos(obs)#Red one position
+        goal1 = self._GetGoal1Pos(obs)#Goal 1 position, whether it has been activated
+        goal2 = self._GetGoal2Pos(obs)#Goal 2 position, whether it has been activated
+        goal3 = self._GetGoal3Pos(obs)#Goal 3 position, whether it has been activated
+        goal4 = self._GetGoal4Pos(obs)#Goal 4 position, whether it has been activated
+        goal5 = self._GetGoal5Pos(obs)#Goal 5 position, whether it has been activated
+        self_info = self._SelfInfo(obs)#Blue one remaining HP & bullet
+        final_obs = [img, self_pos, enemy_pos, self_info, goal1, goal2, goal3, goal4, goal5]
+        return final_obs
 
     def step(self, action):
         obs, reward, done, info = self._env.step(action)
@@ -68,7 +78,7 @@ class CogEnvDecoder:
         collision_info = self._CollCondtion(obs)#collision times and continuous collision time
         final_obs = [img, self_pos, enemy_pos, self_info, goal1, goal2, goal3, goal4, goal5]
         judge_result = [score, flag_ach, enemy_act, enemy_info, dmg, time, collision_info]
-        return final_obs, reward, done, info, judge_result
+        return final_obs, reward, done, [info, judge_result]
     
     def render(self, mode):
         return self._env.render(mode)
@@ -123,8 +133,8 @@ class CogEnvDecoder:
         # return img
 
 
-    def _Getimg(imgData):
-        img_length = int(imgData[80000])
+    def _GetImg(self, imgData):
+        img_length = int(imgData[100000])
         if img_length > 0:
             float_img = np.asarray(imgData[0:img_length], dtype=np.uint8)
             b = bytearray()
@@ -138,100 +148,100 @@ class CogEnvDecoder:
             return opencv_img
         else:
             print('The Environment has not finished loading')
-            gray0=np.zeros((500,500),dtype=np.uint8)
+            gray0=np.zeros((300,300),dtype=np.uint8)
             return gray0
 
     def _GetSelfPos(self, data):
-        xPos = data[80001]
-        zPos = data[80002]
-        angle = data[80003]
+        xPos = data[100001]
+        zPos = data[100002]
+        angle = data[100003]
         return [xPos, zPos, angle]
 
 
     def _GetGoal1Pos(self, data):
-        xPos = data[80004]
-        zPos = data[80005]
-        if data[80014] >= 1:
+        xPos = data[100004]
+        zPos = data[100005]
+        if data[100014] >= 1:
             return [xPos, zPos, True]
         else:
             return [xPos,zPos,False]
 
 
     def _GetGoal2Pos(self, data):
-        xPos = data[80006]
-        zPos = data[80007]
-        if data[80014] >= 2:
+        xPos = data[100006]
+        zPos = data[100007]
+        if data[100014] >= 2:
             return [xPos, zPos, True]
         else:
             return [xPos,zPos,False]
 
 
     def _GetGoal3Pos(self, data):
-        xPos = data[80008]
-        zPos = data[80009]
-        if data[80014] >= 3:
+        xPos = data[100008]
+        zPos = data[100009]
+        if data[100014] >= 3:
             return [xPos, zPos, True]
         else:
             return [xPos,zPos,False]
 
 
     def _GetGoal4Pos(self, data):
-        xPos = data[80010]
-        zPos = data[80011]
-        if data[80014] >= 4:
+        xPos = data[100010]
+        zPos = data[100011]
+        if data[100014] >= 4:
             return [xPos, zPos, True]
         else:
             return [xPos,zPos,False]
 
     def _GetGoal5Pos(self, data):
-        xPos = data[80012]
-        zPos = data[80013]
-        if data[80014] > 4:
+        xPos = data[100012]
+        zPos = data[100013]
+        if data[100014] > 4:
             return [xPos, zPos, True]
         else:
             return [xPos,zPos,False]
 
 
     def _AchievedGoals(self, data):
-        return data[80014]
+        return data[10014]
 
 
     def _EnemyStatus(self, data):
-        return (data[80014] == 5)
+        return (data[100014] == 5)
 
 
     def _EnemyPos(self, data):
-        xPos = data[80015]
-        zPos = data[80016]
-        angle = data[80017]
+        xPos = data[100015]
+        zPos = data[100016]
+        angle = data[100017]
         return [xPos, zPos, angle]
 
 
     def _EnemyInfo(self, data):
-        HP = data[80018]
-        Bullet = data[80019]
+        HP = data[100018]
+        Bullet = data[100019]
         return [HP, Bullet]
 
 
     def _Score(self, data):
-        return data[80020]
+        return data[100020]
 
     def _SelfInfo(self, data):
-        HP = data[80021]
-        Bullet = data[80026]
+        HP = data[100021]
+        Bullet = data[100026]
         return [HP, Bullet]
 
     def _DmgCaused(self, data):
-        dmg = data[80022]
+        dmg = data[100022]
         return dmg
 
 
     def _TimeTaken(self, data):
-        time = data[80023]
+        time = data[100023]
         return time
 
 
     def _CollCondtion(self, data):
-        coll_time = data[80024]
-        cont_coll_time = data[80025]
+        coll_time = data[100024]
+        cont_coll_time = data[100025]
         return [coll_time, cont_coll_time]
